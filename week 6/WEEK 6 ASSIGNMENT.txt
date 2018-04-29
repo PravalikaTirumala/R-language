@@ -1,0 +1,214 @@
+﻿Pravalika Tirumala
+CWID: 50180701
+Week 6 Assignment
+
+
+
+Part 1: Load Data
+Load data, heart.csv, from Doc Sharing. Save data in a data frame named heartData.
+	> heartData<-read.csv("E:/1 FALL 2017/data analysis and visualization/NOT YET SUBMITTED/heart.csv")
+	> names(heartData)
+	 [1] "AGE"       "SEX"       "CHESTPAIN" "RESTBP"    "CHOL"      "SUGAR"    
+	 [7] "ECG"       "MAXHR"     "ANGINA"    "DEP"       "EXERCISE"  "FLOUR"    
+	[13] "THAL"      "OUTPUT"   
+	> nrow(heartData)
+	[1] 270
+	> ncol(heartData)
+	[1] 14
+	> 
+
+Part 2: Preprocess, Clean the Data
+In this data set there are some numerical features that are actually categorical variables. The features CHESTPAIN,THAL, and ECG features are all categorical features. The EXERCISE variable is an ordered categorical variable, and so it is a categorical variable. These variables need to be encoded as factors. 
+A) Convert CHESTPAIN,THAL, ECG, and EXERCISE features to factors.  Recall that the function factor() can be used to accomplish that. 
+Here is the code that converts CHESTPAIN to a factor:heartData$CHESTPAIN = factor(heartData$CHESTPAIN)
+	> heartData$CHESTPAIN = factor(heartData$CHESTPAIN)
+	> summary(heartData$CHESTPAIN)
+	  1   2   3   4 
+	 20  42  79 129 
+
+	> heartData$THAL = factor(heartData$THAL)
+	> summary(heartData$THAL)
+	  3   6   7 
+	152  14 104 
+
+	> heartData$ECG = factor(heartData$ECG)
+	> summary(heartData$ECG)
+	  0   1   2 
+	131   2 137 
+	>
+
+	> heartData$EXERCISE = factor(heartData$EXERCISE)
+	> summary(heartData$EXERCISE)
+	  1   2   3 
+	130 122  18 
+ 
+
+B) Logistic regression requires the target variable's value to be between 0 and 1 (both included). In this data set the target variable OUTPUT has values of 1 and 2. If you don't change them, the glm() method gives the following error:
+fal2017_w6_1 In OUTPUT column replace 1 by 0 and 2 by 1.
+	
+	> heartData$OUTPUT[heartData$OUTPUT==1]<-0
+	> heartData$OUTPUT[heartData$OUTPUT==2]<-1
+	> summary(heartData$OUTPUT)
+	   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+	 0.0000  0.0000  0.0000  0.4444  1.0000  1.0000 
+
+
+Part 3:  Create Test and Training Data Frames Split 80% of data for training and 20% for testing Name the split data as trainData and testData respectively.
+	>  sampleHeart<-sort(sample(nrow(heartData),nrow(heartData)*0.8))
+	>  trainingData<-heartData[sampleHeart,]
+	> testData<-heartData[-sampleHeart,]
+	> nrow(trainingData)
+	[1] 216
+	> nrow(testData)
+	[1] 54
+	
+
+Part 4: Build Logistic Regression Model. Build a model using glm() function with the parameter family=binomial(link="logit"). The formula for the glm() should 
+have OUTPUT as the dependent variable and all other variables as the independent variables. In other words, we would like to regress OUTPUT on the remaining
+predictors. 
+	> y <- "OUTPUT"
+	> x<-c("AGE","SEX","CHESTPAIN","RESTBP","CHOL","SUGAR","ECG","MAXHR","ANGINA","DEP","EXERCISE","FLOUR","THAL","FLOUR","THAL")
+	> fmodel<-paste(y,paste(x,collapse="+"),sep="~")
+	> print(fmodel)
+	[1] "OUTPUT~AGE+SEX+CHESTPAIN+RESTBP+CHOL+SUGAR+ECG+MAXHR+ANGINA+DEP+EXERCISE+FLOUR+THAL"
+	> model<-glm(fmodel,data=trainingData, family=binomial(link="logit"))
+	
+Use summary() method to print the model result.
+	> summary(model)
+	Call:
+	glm(formula = fmodel, family = binomial(link = "logit"), data = trainingData)
+	Deviance Residuals: 
+	    Min       1Q   Median       3Q      Max  
+	-2.5118  -0.5016  -0.1641   0.3930   2.7967  
+	Coefficients:
+	              Estimate Std. Error z value Pr(>|z|)    
+	(Intercept) -6.817e+00  3.406e+00  -2.001  0.04535 *  
+	AGE         -8.312e-03  3.077e-02  -0.270  0.78707    
+	SEX          1.815e+00  6.703e-01   2.708  0.00677 ** 
+	CHESTPAIN2   8.100e-01  9.779e-01   0.828  0.40748    
+	CHESTPAIN3   2.587e-01  7.784e-01   0.332  0.73960    
+	CHESTPAIN4   2.102e+00  7.931e-01   2.650  0.00804 ** 
+	RESTBP       1.952e-02  1.340e-02   1.457  0.14519    
+	CHOL         7.508e-03  4.656e-03   1.613  0.10682    
+	SUGAR       -4.087e-02  6.440e-01  -0.063  0.94940    
+	ECG1        -1.195e+01  1.455e+03  -0.008  0.99345    
+	ECG2         6.045e-01  4.604e-01   1.313  0.18924    
+	MAXHR       -1.769e-02  1.192e-02  -1.484  0.13768    
+	ANGINA       5.970e-01  4.993e-01   1.196  0.23183    
+	DEP          5.004e-01  2.768e-01   1.808  0.07060 .  
+	EXERCISE2    8.675e-01  5.582e-01   1.554  0.12016    
+	EXERCISE3   -7.189e-01  1.242e+00  -0.579  0.56276    
+	FLOUR        1.060e+00  2.982e-01   3.553  0.00038 ***
+	THAL6       -7.861e-02  8.812e-01  -0.089  0.92891    
+	THAL7        1.303e+00  5.011e-01   2.601  0.00930 ** 
+	---
+	Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+	(Dispersion parameter for binomial family taken to be 1)
+	    Null deviance: 294.68  on 215  degrees of freedom
+	Residual deviance: 138.24  on 197  degrees of freedom
+	AIC: 176.24	
+	Number of Fisher Scoring iterations: 14
+	> 
+
+Hint: Refer to textbook pages 159-161.
+Question: Based on the output of the summary(), which variables seem to be the most important?
+	The standard rule of thumb is that coefficients with p-values less than 0.05 are reliable
+	Variables : SEX	CHESTPAIN4	FLOUR	THAL7 seems to be important. 	
+
+
+Part 5: Make Predictions
+Use predict() function to find the predictions of the model on the test data set testData created in Part 3 above. Make sure that you are using the parameter
+type =”response” in predict() function.
+Hint: Check listing 7.10 in the textbook. Also, lecture notes have samples.
+	
+	> testData$pred<-predict(model,newdata=testData,type="response")
+	> print(testData)
+	    AGE SEX CHESTPAIN RESTBP CHOL SUGAR ECG MAXHR ANGINA DEP EXERCISE FLOUR THAL OUTPUT         pred
+	10   63   0         4    150  407     0   2   154      0 4.0        2     3    7      1 9.974676e-01
+	11   59   1         4    135  234     0   0   161      0 0.5        2     0    7      0 6.397469e-01
+	16   71   0         4    112  149     0   0   125      0 1.6        2     0    3      0 7.284786e-02
+	17   46   1         4    140  311     0   0   120      1 1.8        2     2    7      1 9.957227e-01
+	
+
+
+Part 6: Performance of the Model
+A)Confusion Matrix: The output of the predict() function is the probability of the input belonging to class 1. We can perform binary classification by applying a 
+threshold. Use threshold of 0.5 for the output returned from the predict() function. In other words, get all values returned by the predict() function that are
+greater than 0.5. Then, apply the function as.numeric() to convert them(FALSE, TRUE) to 0 or 1 so that the table() function can be used to print prediction values 
+vs real values.(This is required because OUTPUT column has 0 or 1 as the values.) Check textbook page 164, listing 7.13.
+Question: Based on the confusion matrix you found, how many individuals were correctly classified as having heart disease? How many of them were incorrectly classified? 
+
+	> conf_matrix<-table(pred=testData$pred > 0.5, OUTPUT=testData$OUTPUT)
+	> conf_matrix
+	       OUTPUT
+	pred     0  1
+	  FALSE 24  8
+	  TRUE   2 20
+
+	> table(as.numeric(testData$pred>0.5),OUTPUT=testData$OUTPUT)
+	   OUTPUT
+	      0  1
+	  0  24  8
+	  1   2 20
+
+	For a classifier, accuracy is defined as the number of items categorized correctly divided by the total number of items
+	number of items categorized correctly = 44
+	number of items categorized incorrectly =10
+	accuracy is : (20+24)/(20+24+8+20)=81.48
+	
+
+B)ROC Curve
+For this part you need to install the package ROCR.
+i) Plot the ROC curve 
+	> install.packages("ROCR")
+	> eval<-prediction(testData$pred,testData$OUTPUT)
+	> plot(performance(eval,"tpr","fpr"))
+	
+	
+ii) Print the  AUC(area under the curve). 
+Hint: Textbook page 102, listing 5.7.
+	> print(attributes(performance(eval,'auc'))$y.values[[1]])
+	[1] 0.9217033
+
+
+
+Part 7: Visualize Heart Disease By Age Range Using a Dodged Bar Chart
+A) Use AGE predictor to create the following ranges by using the cut() function. 
+[10,20] (20,30] (30,40] (40,50] (50,60] (60,70] (70,80]
+Add the result of the cut() function as a new column named AgeRange to the data frame heartData you created in Step 1.
+	>  breaks<-c(0,10,20,30,40,50,60,70,80)
+	> heartData$AgeRange<-cut(heartData$AGE,breaks=breaks,include.lowest=T)
+	> summary(heartData$AgeRange)
+	 [0,10] (10,20] (20,30] (30,40] (40,50] (50,60] (60,70] (70,80] 
+	      0       0       1      14      71     112      66       6 
+	> names(heartData)
+	 [1] "AGE"       "SEX"       "CHESTPAIN" "RESTBP"    "CHOL"      "SUGAR"     "ECG"       "MAXHR"     "ANGINA"   
+	[10] "DEP"       "EXERCISE"  "FLOUR"     "THAL"      "OUTPUT"    "AgeRange" 
+	> 
+
+B) Use a dodged bar chart to display the distribution of heart disease data using AgeRange. 
+  fal2017_w6_2
+Hint: Textbook pages 58-60
+	> ggplot(heartData) + geom_bar(aes(x=OUTPUT,fill=AgeRange),position="dodge")
+
+
+Part 8: Apply Your Model
+Question: Which of the following individuals have heart disease? 
+AGE	SEX	CHESTPAIN	RESTBP	CHOL	SUGAR	ECG	MAXHR	ANGINA	DEP	EXERCISE	FLOUR	THAL
+67	1	4			150		122		1		1	809		1		4.5		1		2		5
+56	0	4			95		264		0		2	360		0		3.6		2		4		9
+
+	> ldataframe$CHESTPAIN = factor(ldataframe$CHESTPAIN)
+	> ldataframe$ECG = factor(ldataframe$ECG)
+	> ldataframe$EXERCISE = factor(ldataframe$EXERCISE)
+	> ldataframe$THAL = factor(ldataframe$THAL)
+	> ldataframe$OUTCOME<-predict(model,newdata=ldataframe,typr="response")
+	> print(ldataframe)
+	AGE SEX CHESTPAIN RESTBP CHOL SUGAR ECG MAXHR ANGINA DEP EXERCISE FLOUR THAL    OUTCOME
+	1  67   1         4    	150  122     1   1   809      1 4.5        1     2    3 -20.952577
+	2  56   0         4    	 95  264     0   2   360      0 3.6        2     3    7   0.042062
+	> 
+
+Person with age 56 is having the probability of 0.042 of having the heart disease.
+person with age 67, there is no chance of having heart disease.
+

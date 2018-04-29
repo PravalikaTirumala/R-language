@@ -1,0 +1,213 @@
+Pravalika Tirumala
+cwid: 50180701
+Bagging and Random Forests
+
+Required Library: randomForest
+> install.packages("randomForest")
+> library(randomForest)
+
+
+1. Load Data 
+Download data file data_banknote_authentication.csv from Doc Sharing and save into a data frame  named banknoteData
+	> bankNoteData<-read.csv("E:/1 FALL 2017/data analysis and visualization/doc sharing/data_banknote_authentication.csv")
+	> bankNoteData$Class<-factor(bankNoteData$Class,levels=c(0,1),labels=c("Genuine"."Forged"))
+
+2. Set Seed Value
+Set a seed value to get the consistent results.
+Example: set.seed (99999)
+	> set.seed(12345)
+
+
+3. Define Training and Test Data
+Split data 80% as training data and assign it to the trainingData variable.
+Assign the remaining 20% of data to the variable testData to be used as test data.
+	> nrow(bankNoteData)
+	[1] 1372
+	> sampleData<-sort(sample(nrow(bankNoteData),nrow(bankNoteData)*0.8))
+	> training<-bankNoteData[sampleData,]
+	> test<-bankNoteData[-sampleData,]
+	> nrow(training)
+	[1] 1097
+	> nrow(test)
+	[1] 275
+ 
+
+
+4. Apply randomForest Function
+Apply randomForest() function using the following ntree and mtry, and the formula
+mtry : 3
+ntree :400
+myFormula <- as.formula("Class ~ .")
+	> rFFormula <- as.formula("Class ~ .")
+
+A) Print the result of the randomForest. Remember that the randomForest function has the following syntax:
+randomForest(formula=myFormula, ntree=numOfTrees,mtry=mtryValue,
+data=trainData,importance=TRUE)
+where the value of mtryValue is 3, and numOfTrees is 400.
+	// When Class column with values 0 and 1
+	> rF<-randomForest(formula=myFormula, ntree=400,mtry=3,data=training,importance=TRUE)
+	> print(rF)
+	Call:
+	 randomForest(formula = myFormula, data = trainprint()ing, ntree = 400,      mtry = 3, importance = TRUE) 
+	               Type of random forest: regression
+	                     Number of trees: 400
+	No. of variables tried at each split: 3
+	Mean of squared residuals: 0.0060366
+	                    % Var explained: 97.55
+
+
+
+	//When Class column is converted to categorical values, 0 as Genuine and 1 as Forged
+	> rF<-randomForest(formula=myFormula, ntree=400,mtry=3,data=training,importance=TRUE)
+	> print(rF)
+	Call:
+	 randomForest(formula = myFormula, data = training, ntree = 400,      mtry = 3, importance = TRUE) 
+	               Type of random forest: classification
+	                     Number of trees: 400
+	No. of variables tried at each split: 3
+	
+	        OOB estimate of  error rate: 0.55%
+	Confusion matrix:
+	        Genuine Forged class.error
+	Genuine     607      5 0.008169935
+	Forged        1    484 0.002061856
+	> 
+
+B) Use predict() function and testData to find the model predictions. Print the confusion matrix (i.e., use table() function to print the predicted vs actual data)
+	> predictions<-predict(rF,newdata=test)
+	> summary(predictions)
+	Genuine  Forged 
+	    148     127 
+
+	> confMatrix<-table(test$Class,predictions,dnn=c("Actual","Predicted"))
+	> confMatrix
+	         Predicted
+	Actual    Genuine Forged
+	  Genuine     148      2
+	  Forged        0    125
+	The model mis classifies 2 cases out of 275
+
+
+
+C) Use importance() function to display the importance of the predictors:
+	> importance(rF,type=1)
+	            MeanDecreaseAccuracy
+	WaveletVar             185.06881
+	WaveletSkew             96.18419
+	WaveletCurt             83.26786
+	Entropy                 21.83056
+
+
+	> importance(rF)
+	              Genuine    Forged MeanDecreaseAccuracy MeanDecreaseGini
+	WaveletVar  115.17613 179.13542            185.06881        312.05415
+	WaveletSkew  51.55299 113.10672             96.18419        133.57096
+	WaveletCurt  54.00488  75.11536             83.26786         75.74511
+	Entropy      12.87458  18.81595             21.83056         19.36975
+
+
+
+D)Use varImpPlot() function to print the importance of predictors.
+	> varImpPlot(rF)
+ 
+E) Apply the random forest model you found to predict whether the following banknotes are genuine or forged.
+	> TestrF<-read.csv("E:/1 FALL 2017/data analysis and visualization/doc sharing/rFTest.csv")
+	> TestrF
+	  WaveletVar WaveletSkew WaveletCurt  Entropy
+	1     1.6900      4.6800     -3.8073 -0.18000
+	2     5.5459      4.1674     -2.4586 -0.46280
+	3     7.8660     -4.6383      1.9242  1.10648
+	> TestrF$Class<-predict(rF,newdata=TestrF)
+	> TestrF$Class
+	[1] Forged  Genuine Genuine
+	Levels: Genuine Forged
+	> TestrF
+	  WaveletVar WaveletSkew WaveletCurt  Entropy    Class
+	1     1.6900      4.6800     -3.8073 -0.18000   Forged
+	2     5.5459      4.1674     -2.4586 -0.46280  Genuine
+	3     7.8660     -4.6383      1.9242  1.10648  Genuine
+
+
+5.  Bagging 
+
+Explain the bagging.
+	Bagging is often used to improve decision tree models. In bagging, bootstrap samples (random samples with replacement) from the data are made. 
+	From each sample, a decision tree model is built. Then the average of all the individual decision trees gives the final model. Bagging decision trees stabilizes the 
+	final model by lowering the variance; which improves the accuracy and it also less likely to overfit the data.
+
+How can you use random forest as a bagging method?
+	random forests directly combines decision trees with bagging, it is the refinement of bagged trees. 
+	By default, randomForest() uses p/3 variables when building a random forest of regression trees, and square root of p variables when building a random 
+	forest of classification trees. Bagging is simply a special case of a random forest with m = p. Therefore, the randomForest() function can be 
+	used to perform both random forests and bagging.
+
+Repeat Step 4 using randomForest as a bagging method.
+	
+	A)
+	> rFBagging<-randomForest(formula=myFormula,ntree=400,mtry=4,data=training,importance=TRUE)
+	> print(rFBagging)
+	Call:
+	 randomForest(formula = myFormula, data = training, ntree = 400,      mtry = 4, importance = TRUE) 
+	               Type of random forest: classification
+	                     Number of trees: 400
+	No. of variables tried at each split: 4
+	
+	        OOB estimate of  error rate: 0.73%
+	Confusion matrix:
+	        Genuine Forged class.error
+	Genuine     607      5 0.008169935
+	Forged        3    482 0.006185567
+	> predBagg<-predict(rFBagging,newdata=test)
+	> summary(predBagg)
+	Genuine  Forged 
+	    148     127 
+	> confMatBag<-table(test$Class,predBagg,dnn=c("Actual","Predicted"))
+	> confMatBag
+	         Predicted
+	Actual    Genuine Forged
+	  Genuine     148      2
+	  Forged        0    125
+	
+	Error rate  with mtry 3 is 0.55%, but with random forest as Bagging method it is 0.73%. I.e it miscalculates 2 more forged cases as genuine compared to random
+	 forest. But the predictions on test dataset are same in both the cases.
+
+
+	B)
+	> importance(rFBagging)
+	              Genuine    Forged MeanDecreaseAccuracy MeanDecreaseGini
+	WaveletVar  144.79945 239.75473            246.77805        316.34629
+	WaveletSkew  58.27322 120.26254            117.51673        133.11469
+	WaveletCurt  56.53877  95.31590             96.17348         78.61405
+	Entropy      20.73366  20.10087             25.96689         12.38958
+	> importance(rFBagging,type=1)
+	            MeanDecreaseAccuracy
+	WaveletVar             246.77805
+	WaveletSkew            117.51673
+	WaveletCurt             96.17348
+	Entropy                 25.96689
+	
+	MeanDecreaseAccuaracy has increased in all the variables using random forest as Bagging method.
+
+	C)
+	> varImpPlot(rFBagging)
+	
+
+	D)
+	> TestrF
+	  WaveletVar WaveletSkew WaveletCurt  Entropy   Class
+	1     1.6900      4.6800     -3.8073 -0.18000  Forged
+	2     5.5459      4.1674     -2.4586 -0.46280 Genuine
+	3     7.8660     -4.6383      1.9242  1.10648 Genuine
+	> TestrF$ClassBagg<-predict(rFBagging,newdata=TestrF)
+	> TestrF$ClassBagg
+	[1] Forged  Genuine Genuine
+	Levels: Genuine Forged
+	> TestrF
+	  WaveletVar WaveletSkew WaveletCurt  Entropy   Class ClassBagg
+	1     1.6900      4.6800     -3.8073 -0.18000  Forged    Forged
+	2     5.5459      4.1674     -2.4586 -0.46280 Genuine   Genuine
+	3     7.8660     -4.6383      1.9242  1.10648 Genuine   Genuine
+	> 
+	
+	Predictions on the given dataset are same as that of Random Forest.
+	

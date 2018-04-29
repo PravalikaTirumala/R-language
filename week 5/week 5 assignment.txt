@@ -1,0 +1,402 @@
+﻿Pravalika Tirumala
+CWID 50180701
+WEEK 5 Assignment - Linear Regression
+
+Part 1. Load ( from Doc Sharing) diabetes.csv data into a data frame.
+	> library(ggplot2)	
+	> diabetesDFrame<-read.csv("E:/1 FALL 2017/data analysis and visualization/doc sharing/diabetes.csv")
+
+
+Part 2: Construct the density plots of S1, S2, S3, S4, S5, and S6. Based on the density plots, which predictor's distribution is far from the normal distribution?
+	>  ggplot(diabetesDFrame)+geom_density(aes(x=S1))  
+	>  ggplot(diabetesDFrame)+geom_density(aes(x=S2))  
+	>  ggplot(diabetesDFrame)+geom_density(aes(x=S3))  
+	>  ggplot(diabetesDFrame)+geom_density(aes(x=S4))  
+	>  ggplot(diabetesDFrame)+geom_density(aes(x=S5))  
+	>  ggplot(diabetesDFrame)+geom_density(aes(x=S6)) 	
+	
+	Predictor S4 's distribution is far from the normal distribution.
+	
+	
+Part 3. Construct scatterplots with smoothing curves of Y (disease progression) against each of the continuous predictors.
+Based on the plots, are there any variables that have linear relationship with Y (disease progression)?
+
+	> ggplot(diabetesDFrame,aes(x=AGE,y=Y))+geom_point()+stat_smooth()+ylim(20,346) (or)
+	> ggplot(diabetesDFrame,aes(x=AGE,y=Y))+geom_point()+geom_smooth()+ylim(20,346)
+	> ggplot(diabetesDFrame,aes(x=Y,y=SEX))+geom_point(position=position_jitter(w=0.05, h=0.05))+geom_smooth()+xlim(20,347) (or)
+	> ggplot(diabetesDFrame,aes(x=Y,y=SEX))+geom_point(position=position_jitter(w=0.05, h=0.05))+geom_smooth()
+	> ggplot(diabetesDFrame,aes(x=BMI,y=Y))+geom_point()+geom_smooth()+ylim(20,346)
+	> ggplot(diabetesDFrame,aes(x=BP,y=Y))+geom_point()+geom_smooth()+ylim(20,346)
+	> ggplot(diabetesDFrame,aes(x=S1,y=Y))+geom_point()+geom_smooth()+ylim(20,346)
+	> ggplot(diabetesDFrame,aes(x=S2,y=Y))+geom_point()+geom_smooth()+ylim(20,346)
+	> ggplot(diabetesDFrame,aes(x=S3,y=Y))+geom_point()+geom_smooth()+ylim(20,346)
+	> ggplot(diabetesDFrame,aes(x=S4,y=Y))+geom_point()+geom_smooth()+ylim(20,346)
+	> ggplot(diabetesDFrame,aes(x=S5,y=Y))+geom_point()+geom_smooth()+ylim(20,346)
+	> ggplot(diabetesDFrame,aes(x=S6,y=Y))+geom_point()+geom_smooth()+ylim(20,346)
+
+
+	
+	BMI and BP and S6 have linear relationshipwith Y
+	
+	
+Part 4. Split 80% of data for training and 20% for testing.
+	> nrow(diabetesDFrame)
+	[1] 442
+	> sampleDiabetes<-sort(sample(nrow(diabetesDFrame),nrow(diabetesDFrame)*0.8))
+	> training<-diabetesDFrame[sampleDiabetes,]
+	> nrow(training)
+	[1] 353
+	> test<-diabetesDFrame[-sampleDiabetes,]
+	> nrow(test)
+	[1] 89
+
+	
+	
+Part 5.
+A) For each predictor, AGE,SEX, BMI, BP, S1, S2, S3, S4, S5, S6 fit a simple linear regression model to training data.
+For example, to fit a linear regression model to the AGE predictor you need to use function lm(): 
+lm(Y~AGE, data=trainData) 
+
+	> agemodel<-lm(Y~AGE, data=training)
+	> sexmodel<-lm(Y~SEX, data=training)
+	> bmimodel<-lm(Y~BMI, data=training)
+	> bpmodel<-lm(Y~BP, data=training)
+	> s1model<-lm(Y~S1, data=training)
+	> s2model<-lm(Y~S2, data=training)
+	> s3model<-lm(Y~S3, data=training)
+	> s4model<-lm(Y~S4, data=training)
+	> s5model<-lm(Y~S5, data=training)
+	> s6model<-lm(Y~S6, data=training)
+ 
+		
+B) Use summary() command to print the information on model performance.
+	> summary(agemodel)
+	Call:
+	lm(formula = Y ~ AGE, data = training)
+	Residuals:
+		Min      1Q  Median      3Q     Max 
+	-124.22  -63.54  -14.99   54.55  184.03 
+	Coefficients:
+				Estimate Std. Error t value Pr(>|t|)    
+	(Intercept)  89.8430    15.9666   5.627 3.76e-08 ***
+	AGE           1.2230     0.3182   3.843 0.000144 ***
+	---
+	Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+	Residual standard error: 75.61 on 351 degrees of freedom
+	Multiple R-squared:  0.04038,   Adjusted R-squared:  0.03765 
+	F-statistic: 14.77 on 1 and 351 DF,  p-value: 0.0001442
+
+	> summary(sexmodel) 
+	Residuals:
+		Min      1Q  Median      3Q     Max 
+		-118.77  -67.10  -11.10   56.23  185.90 
+	SEX            11.34       8.20   1.382    0.168   	
+	Residual standard error: 76.98 on 351 degrees of freedom
+	Multiple R-squared:  0.005415,  Adjusted R-squared:  0.002581 
+	F-statistic: 1.911 on 1 and 351 DF,  p-value: 0.1677
+
+	> summary(bmimodel)
+	Residuals:
+		Min       1Q   Median       3Q      Max 
+	-162.138  -46.275   -7.767   44.852  156.690 
+	BMI           10.1523     0.7881  12.881  < 2e-16 ***
+	Residual standard error: 63.6 on 351 degrees of freedom
+	Multiple R-squared:  0.321,     Adjusted R-squared:  0.3191 
+	F-statistic: 165.9 on 1 and 351 DF,  p-value: < 2.2e-16
+
+	> summary(bpmodel)
+	Residuals:
+		Min       1Q   Median       3Q      Max 
+	-170.015  -53.732   -7.873   52.411  200.981 
+	BP            2.4285     0.2607   9.317  < 2e-16 ***
+	Residual standard error: 69.11 on 351 degrees of freedom
+	Multiple R-squared:  0.1983,    Adjusted R-squared:  0.196 
+	F-statistic:  86.8 on 1 and 351 DF,  p-value: < 2.2e-16
+
+	> summary(s1model)
+	Residuals:
+		Min      1Q  Median      3Q     Max 
+	-126.74  -61.95  -13.23   57.12  212.41 
+	S1            0.5477     0.1185   4.623 5.31e-06 ***
+	Residual standard error: 74.94 on 351 degrees of freedom
+	Multiple R-squared:  0.0574,    Adjusted R-squared:  0.05472 
+	F-statistic: 21.38 on 1 and 351 DF,  p-value: 5.315e-06
+
+	> summary(s2model)
+	Residuals:
+    	Min      1Q  Median      3Q     Max 
+	-127.78  -61.03  -16.24   56.70  196.76 
+	S2            0.4882     0.1357   3.597 0.000368 ***
+	Residual standard error: 75.8 on 351 degrees of freedom
+	Multiple R-squared:  0.03555,   Adjusted R-squared:  0.0328 
+	F-statistic: 12.94 on 1 and 351 DF,  p-value: 0.0003682
+
+	> summary(s3model)
+	Residuals:
+	    Min      1Q  Median      3Q     Max 
+	-132.22  -55.91  -10.43   49.61  189.28 
+	S3           -2.3484     0.2963  -7.925 3.07e-14 ***
+	Residual standard error: 71.09 on 351 degrees of freedom
+	Multiple R-squared:  0.1518,    Adjusted R-squared:  0.1493 
+	F-statistic:  62.8 on 1 and 351 DF,  p-value: 3.065e-14
+
+	> summary(s4model)
+	Residuals:
+	     Min       1Q   Median       3Q      Max 
+	-198.074  -53.386   -9.924   47.076  188.614 
+	S4            26.461      2.889   9.159  < 2e-16 ***
+	Residual standard error: 69.34 on 351 degrees of freedom
+	Multiple R-squared:  0.1929,    Adjusted R-squared:  0.1906 
+	F-statistic: 83.89 on 1 and 351 DF,  p-value: < 2.2e-16
+
+	> summary(s5model)
+	Residuals:
+	     Min       1Q   Median       3Q      Max 
+	-164.094  -47.095   -5.254   40.040  191.427 
+	S5            85.234      6.342  13.441  < 2e-16 ***
+	Residual standard error: 62.72 on 351 degrees of freedom
+	Multiple R-squared:  0.3398,    Adjusted R-squared:  0.3379 
+	F-statistic: 180.6 on 1 and 351 DF,  p-value: < 2.2e-16
+
+	> summary(s6model)
+	Residuals:
+	     Min       1Q   Median       3Q      Max 
+	-153.288  -56.156   -6.966   54.571  172.736 
+	S6             2.703      0.329   8.215 4.11e-15 ***
+	Residual standard error: 70.69 on 351 degrees of freedom
+	Multiple R-squared:  0.1613,    Adjusted R-squared:  0.1589 
+	F-statistic: 67.49 on 1 and 351 DF,  p-value: 4.113e-15
+	
+	Formula for model with all the variables is:
+	>  model=lm(log(Y,base=10)~AGE+SEX+BMI+BP+S1+S2+S3+S4+S5+S6, data=training)
+	> summary(model)
+	
+
+C) From the output in part B), in which of the models is there a statistically significant association (if any) between the predictor and the 
+response (i.e., Y) ? 
+	To find the model in which predictors are significant, we have to check p-value. All predictors have a p-value less than 0.05 except “SEX”,
+	AHE 0.000144		SEX  0.168  		BMI < 2e-16			BP < 2e-16
+	S1 5.31e-06			 S2 0.000368 		S3 3.07e-14 		S4 < 2e-16	
+	S5 < 2e-16			 S6 4.11e-15
+	hence,we can say that that except for the “SEX” predictor, there is a statistically significant association between each predictor and the response 
+
+
+
+D) Do the scatter plots  in Part 3 back up your answer to part C? 
+	No..
+
+
+
+E) For each model, use predict() function on test data to find the model prediction. Then plot actual Y as a function of predicted Y (for the model).
+	> test$agemodelpred<-predict(agemodel,newdata=test)
+	> test$sexmodelpred<-predict(sexmodel,newdata=test)
+	> test$bmimodelpred<-predict(bmimodel,newdata=test)
+	> test$bpmodelpred<-predict(bpmodel,newdata=test)
+	> test$s1modelpred<-predict(s1model,newdata=test)
+	> test$s2modelpred<-predict(s2model,newdata=test)
+	> test$s3modelpred<-predict(s3model,newdata=test)
+	> test$s4modelpred<-predict(s4model,newdata=test)
+	> test$s5modelpred<-predict(s5model,newdata=test)
+	> test$s6modelpred<-predict(s6model,newdata=test)
+	
+	> ggplot(data=test,aes(x=agemodelpred,y=Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=agemodelpred,y=Y),color="blue",linetype=2) 
+	+ geom_line(aes(x=Y, y=Y),color="blue",linetype=2) + scale_x_continuous(limits=c(0,320)) + scale_y_continuous(limits=c(0,320))
+	
+	> ggplot(data=test,aes(x=sexmodelpred,y=Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=sexmodelpred,y=Y),color="blue",linetype=2) 
+	+ geom_line(aes(x=Y, y=Y),color="blue",linetype=2) + scale_x_continuous(limits=c(0,320)) + scale_y_continuous(limits=c(0,320))
+	
+	> ggplot(data=test,aes(x=bmimodelpred,y=Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=bmimodelpred,y=Y),color="blue",linetype=2) 
+	+ geom_line(aes(x=Y, y=Y),color="blue",linetype=2) + scale_x_continuous(limits=c(0,320)) + scale_y_continuous(limits=c(0,320))
+	
+	> ggplot(data=test,aes(x=bpmodelpred,y=Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=bpmodelpred,y=Y),color="blue",linetype=2) 
+	+ geom_line(aes(x=Y, y=Y),color="blue",linetype=2) + scale_x_continuous(limits=c(0,320)) + scale_y_continuous(limits=c(0,320))
+	
+	> ggplot(data=test,aes(x=S1modelpred,y=Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=S1modelpred,y=Y),color="blue",linetype=2) 
+	+ geom_line(aes(x=Y, y=Y),color="blue",linetype=2) + scale_x_continuous(limits=c(0,320)) + scale_y_continuous(limits=c(0,320))
+	
+	> ggplot(data=test,aes(x=S2modelpred,y=Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=S2modelpred,y=Y),color="blue",linetype=2) 
+	+ geom_line(aes(x=Y, y=Y),color="blue",linetype=2) + scale_x_continuous(limits=c(0,320)) + scale_y_continuous(limits=c(0,320))
+	
+	> ggplot(data=test,aes(x=S3modelpred,y=Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=S3modelpred,y=Y),color="blue",linetype=2) 
+	+ geom_line(aes(x=Y, y=Y),color="blue",linetype=2) + scale_x_continuous(limits=c(0,320)) + scale_y_continuous(limits=c(0,320))
+	
+	> ggplot(data=test,aes(x=S4modelpred,y=Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=S4modelpred,y=Y),color="blue",linetype=2) 
+	+ geom_line(aes(x=Y, y=Y),color="blue",linetype=2) + scale_x_continuous(limits=c(0,320)) + scale_y_continuous(limits=c(0,320))
+	
+	> ggplot(data=test,aes(x=S5modelpred,y=Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=S5modelpred,y=Y),color="blue",linetype=2) 
+	+ geom_line(aes(x=Y, y=Y),color="blue",linetype=2) + scale_x_continuous(limits=c(0,320)) + scale_y_continuous(limits=c(0,320))
+	
+	> ggplot(data=test,aes(x=S6modelpred,y=Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=S6modelpred,y=Y),color="blue",linetype=2) 
+	+ geom_line(aes(x=Y, y=Y),color="blue",linetype=2) + scale_x_continuous(limits=c(0,320)) + scale_y_continuous(limits=c(0,320))
+	
+	
+	
+F) For each model plot the fitted(i.e, predicted) values versus residuals.
+
+	ggplot(data=test,aes(x=agemodelpred,y=agemodelpred-Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=agemodelpred, y=agemodelpred-Y),color="black")
+	ggplot(data=test,aes(x=sexmodelpred,y=sexmodelpred-Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=sexmodelpred, y=sexmodelpred-Y),color="black")
+	ggplot(data=test,aes(x=bmimodelpred,y=bmimodelpred-Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=bmimodelpred, y=bmimodelpred-Y),color="black")
+	ggplot(data=test,aes(x=bpmodelpred,y=bpmodelpred-Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=bpmodelpred, y=bpmodelpred-Y),color="black")
+	ggplot(data=test,aes(x=s1modelpred,y=s1modelpred-Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=s1modelpred, y=s1modelpred-Y),color="black")
+	ggplot(data=test,aes(x=s2modelpred,y=s2modelpred-Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=s2modelpred, y=s2modelpred-Y),color="black")
+	ggplot(data=test,aes(x=s3modelpred,y=s3modelpred-Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=s3modelpred, y=s3modelpred-Y),color="black")
+	ggplot(data=test,aes(x=s4modelpred,y=s4modelpred-Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=s4modelpred, y=s4modelpred-Y),color="black")
+	ggplot(data=test,aes(x=s5modelpred,y=s5modelpred-Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=s5modelpred, y=s5modelpred-Y),color="black")
+	ggplot(data=test,aes(x=s6modelpred,y=s6modelpred-Y)) + geom_point(alpha=0.2,color="black") + geom_smooth(aes(x=s6modelpred, y=s6modelpred-Y),color="black")
+
+
+G) Is there evidence of non-linear association between any of the predictors and the response?
+	Yes.
+
+
+Part 6.
+A) Fit a multiple regression model to predict the response (i.e., Y) using all of the remaining predictors. Recall that the formula to lm() in this case will be
+Y~ .
+
+	> fitmodel<-lm(Y~AGE+SEX+BMI+BP+S1+S2+S3+S4+S5+S6, data=training)
+
+B) Print a full report on the model using summary() function.
+	> summary(fitmodel)
+	Call:
+	lm(formula = Y ~ AGE + SEX + BMI + BP + S1 + S2 + S3 + S4 + S5 + S6, data = training)
+	Residuals:
+		Min       1Q   Median       3Q      Max 
+	-149.008  -38.487   -3.003   36.637  158.369 
+	Coefficients:
+				Estimate Std. Error t value Pr(>|t|)    
+	(Intercept) -383.5069    74.9606  -5.116 5.21e-07 ***
+	AGE            0.1248     0.2505   0.498  0.61874    
+	SEX          -21.1544     6.5882  -3.211  0.00145 ** 
+	BMI            5.3509     0.8194   6.530 2.38e-10 ***
+	BP             1.1142     0.2468   4.514 8.75e-06 ***
+	S1            -1.2478     0.6232  -2.002  0.04606 *  
+	S2             0.8820     0.5781   1.526  0.12799    
+	S3             0.7867     0.8572   0.918  0.35939    
+	S4             9.0502     6.5433   1.383  0.16753    
+	S5            74.4736    17.3194   4.300 2.23e-05 ***
+	S6             0.2619     0.3092   0.847  0.39754    
+	---
+	Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+	Residual standard error: 54.44 on 342 degrees of freedom
+	Multiple R-squared:  0.5153,    Adjusted R-squared:  0.5011 
+	F-statistic: 36.35 on 10 and 342 DF,  p-value: < 2.2e-16
+
+
+i ) What is the residual error(RSE)?
+	> dfree <- dim(training)[1] - dim(summary(fitmodel)$coefficients)[1]
+	> ResidualStdError <- sqrt(sum(residuals(fitmodel)^2)/dfree)
+	> ResidualStdError
+	[1] 54.44095 
+	(or)
+	From summary(fitmodel), we can find Residual standard error: 54.44 on 342 degrees of freedom in coefficient table
+	
+	
+ii) What is the R² (i.e., R-squared) value?
+
+	rsq <- function(y,f) { 1 - sum((y-f)^2)/sum((y-mean(y))^2) }
+	> rsq(training$Y,predict(fitmodel,newdata=training))
+	[1] 0.515271			//on trainingdata
+	> rsq(test$Y,predict(fitmodel,newdata=test))
+	[1] 0.4965906			//on test data
+	
+	From summary method:Multiple R-squared:  0.5153,    Adjusted R-squared:  0.5011 
+	
+iii) What can you conclude about the model based on RSE or R² values? In other words, is it a good fit for the data?
+	R-squared needs to be fairly large (1.0 is the largest you can achieve) and R-squareds that are similar on test and training and preferable 
+	is  R-squares higher than this (say, 0.7–1.0). we have 0.5152 on trainingdata and 0.4965 on test data. so the So the model is of 
+	low quality, but not substantially overfit. 
+		
+iv) Based on the R² value, how much of the variability in Y is explained by linear regression?
+	R-square  is equal to 0.5153, i,e approx 51.53 of the variability is explained by linear regression.
+
+
+
+Part 7.
+A) Create a model using all predictors plus the following interactions.
+AGE*BMI
+AGE*BP
+AGE*SEX
+So, the formula to the lm() function will be Y~ AGE + SEX + BMI + BP + S1 + S2 + S3 + S4 + S5 + S6 + AGE*BMI + AGE*BP + AGE*SEX
+	> modelAddiAttri=lm(Y~AGE+SEX+BMI+BP+S1+S2+S3+S4+S5+S6+AGE*BMI + AGE*BP + AGE*SEX, data=training)
+
+
+B) Explain whether the new model (in part A above) is a better fit than the linear model in Part 6?
+	> summary(modelAddiAttri)
+	Call:
+	lm(formula = Y ~ AGE + SEX + BMI + BP + S1 + S2 + S3 + S4 + S5 + S6 + AGE * BMI + AGE * BP + AGE * SEX, data = training)
+	Residuals:
+		Min       1Q   Median       3Q      Max 
+	-148.403  -39.126   -0.222   36.852  147.772 
+	Coefficients:
+				Estimate Std. Error t value Pr(>|t|)    
+	(Intercept) -1.810e+02  1.097e+02  -1.650 0.099782 .  
+	AGE         -5.083e+00  1.936e+00  -2.625 0.009054 ** 
+	SEX         -8.664e+01  2.431e+01  -3.564 0.000418 ***
+	BMI          8.186e-01  3.025e+00   0.271 0.786874    
+	BP           8.257e-01  1.000e+00   0.826 0.409549    
+	S1          -1.371e+00  6.168e-01  -2.223 0.026907 *  
+	S2           1.026e+00  5.736e-01   1.788 0.074641 .  
+	S3           1.155e+00  8.543e-01   1.352 0.177324    
+	S4           1.076e+01  6.471e+00   1.664 0.097102 .  
+	S5           7.787e+01  1.714e+01   4.544 7.68e-06 ***
+	S6           2.965e-01  3.052e-01   0.972 0.331990    
+	AGE:BMI      1.003e-01  6.204e-02   1.617 0.106877    
+	AGE:BP       6.032e-03  1.951e-02   0.309 0.757332    
+	AGE:SEX      1.360e+00  4.810e-01   2.827 0.004974 ** 
+	---
+	Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+	Residual standard error: 53.66 on 339 degrees of freedom
+	Multiple R-squared:  0.5332,    Adjusted R-squared:  0.5153 
+	F-statistic: 29.79 on 13 and 339 DF,  p-value: < 2.2e-16
+
+Back up your answers with visual plots. 
+
+	part6- > fitmodel<-lm(Y~AGE+SEX+BMI+BP+S1+S2+S3+S4+S5+S6, data=training)
+	> test$predY1 <- predict(fitmodel,newdata=test)
+	> ggplot(data=test,aes(x=predY1,y=lY)) +geom_point(alpha=0.2,color="black") +geom_smooth(aes(x=predY1,y=Y),color="black") +
+	geom_line(aes(x=Y,y=Y),color="blue",linetype=2) + scale_x_continuous(limits=c(0,320)) +scale_y_continuous(limits=c(0,320))
+
+	part7 -> > modelAddiAttri=lm(Y~AGE+SEX+BMI+BP+S1+S2+S3+S4+S5+S6+AGE*BMI + AGE*BP + AGE*SEX, data=training)
+	> test$predY2 <- predict(modelAddiAttri,newdata=test)
+	> ggplot(data=test,aes(x=predY2,y=lY)) +geom_point(alpha=0.2,color="black") +geom_smooth(aes(x=predY2,y=Y),color="black") +
+	geom_line(aes(x=Y,y=Y),color="blue",linetype=2) + scale_x_continuous(limits=c(0,320)) +scale_y_continuous(limits=c(0,320))
+
+	modelAddiattri is a little better model compared tp part 6 model
+	R-squared:  0.5153 (part 6)
+	R-squared:  0.5332
+	There is no significant difference between r-squared values hence, this new model is little bit better than part 6 model.
+	
+Construct the plot fitted vs residual for the model. 
+	> test$predY <- predict(modelAddiAttri,newdata=dtest)
+	> ggplot(data=test,aes(x=predY,y=predY- Y)) +geom_point(alpha=0.2,color="black") +geom_smooth(aes(x=predY,y=predY-Y),color="black")
+
+ C) Which inputs to the model are significant? List all of them and explain the reason.
+	inputs - AGE, SEX,  S1,  S5, and AGE*SEX are significant because , p-value is lesser than 0.05
+	
+	
+Part 8. Apply Your Model
+Use the following data with the model you created in Part 7 to predict Y. 
+
+	> newData<-read.table(file="clipboard",sep="\t",header=TRUE)
+	> names(newData)
+	[1] "AGE" "SEX" "BMI" "BP"  "S1"  "S2"  "S3"  "S4"  "S5"  "S6" 
+	> nrow(newData)
+	[1] 5
+	> ncol(newData)
+	[1] 10
+
+	> newData$predY<-predict(fitmodel,newdata=newData)
+	> print(newData)
+	AGE SEX  BMI  BP  S1    S2 S3 S4  S5 S6      predY
+	1  23   2 32.1  99 157  93.2 38  4 4.5 87 169.446646
+	2  67   1 21.6  87 183 121.0 70  3 3.3 69  40.658177
+	3  76   2 30.5  93 156  93.6 41  4 3.3 85  74.882626
+	4  35   1 25.3  76 198 131.4 40  5 2.8 89  -2.836449
+	5  44   1 23.0 101 192 111.0 52  4 4.7 80 142.860769
+
+
+
+
+
+
+

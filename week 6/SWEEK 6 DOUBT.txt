@@ -1,0 +1,63 @@
+Part 4: Build Logistic Regression Model. Build a model using glm() function with the parameter family=binomial(link="logit"). The formula for the glm() should 
+have OUTPUT as the dependent variable and all other variables as the independent variables. In other words, we would like to regress OUTPUT on the remaining
+ predictors. 
+	
+	> y <- "OUTPUT"
+	> x<-c("AGE","SEX","CHESTPAIN","RESTBP","CHOL","SUGAR","ECG","MAXHR","ANGINA","DEP","EXERCISE","FLOUR","THAL","FLOUR","THAL")
+	> fmodel<-paste(y,paste(x,collapse="+"),sep="~")
+	> print(fmodel)
+	[1] "OUTPUT~AGE+SEX+CHESTPAIN+RESTBP+CHOL+SUGAR+ECG+MAXHR+ANGINA+DEP+EXERCISE+FLOUR+THAL"
+	> model<-glm(fmodel,data=trainingData, family=binomial(link="logit"))
+	
+
+
+
+	> summary(model)
+	Call:
+	glm(formula = fmodel, family = binomial(link = "logit"), data = trainingData)
+	Deviance Residuals: 
+	    Min       1Q   Median       3Q      Max  
+	-2.5118  -0.5016  -0.1641   0.3930   2.7967  
+	Coefficients:
+	              Estimate Std. Error z value Pr(>|z|)    
+	(Intercept) -6.817e+00  3.406e+00  -2.001  0.04535 *  
+	AGE         -8.312e-03  3.077e-02  -0.270  0.78707    
+	SEX          1.815e+00  6.703e-01   2.708  0.00677 ** 
+	CHESTPAIN2   8.100e-01  9.779e-01   0.828  0.40748    
+	CHESTPAIN3   2.587e-01  7.784e-01   0.332  0.73960    
+	CHESTPAIN4   2.102e+00  7.931e-01   2.650  0.00804 ** 
+	RESTBP       1.952e-02  1.340e-02   1.457  0.14519    
+	CHOL         7.508e-03  4.656e-03   1.613  0.10682    
+	SUGAR       -4.087e-02  6.440e-01  -0.063  0.94940    
+	ECG1        -1.195e+01  1.455e+03  -0.008  0.99345    
+	ECG2         6.045e-01  4.604e-01   1.313  0.18924    
+	MAXHR       -1.769e-02  1.192e-02  -1.484  0.13768    
+	ANGINA       5.970e-01  4.993e-01   1.196  0.23183    
+	DEP          5.004e-01  2.768e-01   1.808  0.07060 .  
+	EXERCISE2    8.675e-01  5.582e-01   1.554  0.12016    
+	EXERCISE3   -7.189e-01  1.242e+00  -0.579  0.56276    
+	FLOUR        1.060e+00  2.982e-01   3.553  0.00038 ***
+	THAL6       -7.861e-02  8.812e-01  -0.089  0.92891    
+	THAL7        1.303e+00  5.011e-01   2.601  0.00930 ** 
+	---
+	Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+	(Dispersion parameter for binomial family taken to be 1)
+	    Null deviance: 294.68  on 215  degrees of freedom
+	Residual deviance: 138.24  on 197  degrees of freedom
+	AIC: 176.24	
+	Number of Fisher Scoring iterations: 14
+	> 
+
+
+Part 5: Make Predictions
+Use predict() function to find the predictions of the model on the test data set testData created in Part 3 above. Make sure that you are using the parameter
+type =”response” in predict() function.
+Hint: Check listing 7.10 in the textbook. Also, lecture notes have samples.
+	> testData$pred<-predict(model,testData,type="response")
+	> print(testData)
+	    AGE SEX CHESTPAIN RESTBP CHOL SUGAR ECG MAXHR ANGINA DEP EXERCISE FLOUR THAL OUTPUT         pred
+	10   63   0         4    150  407     0   2   154      0 4.0        2     3    7      1 9.974676e-01
+	11   59   1         4    135  234     0   0   161      0 0.5        2     0    7      0 6.397469e-01
+	16   71   0         4    112  149     0   0   125      0 1.6        2     0    3      0 7.284786e-02
+	17   46   1         4    140  311     0   0   120      1 1.8        2     2    7      1 9.957227e-01
+	

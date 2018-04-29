@@ -1,0 +1,233 @@
+Pravalika Tirumala
+cwid: 50180701
+K-Means
+
+In this assignment we will use movie data to classify movies based on the terms that appear in the synopsis. The data has 564 columns: the first 
+column is the name of the movie, the other 563 columns are the terms that were extracted. We want to use those 563 values to divide movies into clusters.
+The idea is that the set of movies in each cluster will be similar to each other. 
+
+
+Part 1. Read Data
+Read movie data into a data frame, named movieData.
+You can download data file (movie.csv) from Doc Sharing at the class web site. 
+	> movieData<-read.csv("E:/1 FALL 2017/data analysis and visualization/doc sharing/movie.csv")
+	> nrow(movieData)
+	[1] 100
+	> ncol(movieData)
+	[1] 564
+	
+	
+Part 2. Prepare Data 
+We want to use all columns of the data except the first column, movieName. The reason is that we are going to use the rest of data in kmeans to cluster the movies and then find out the movies in each cluster that kmeans found.
+Create a new data frame named movieDataWithoutNames which contains all data from movieData except the first column.
+	> movieDataWithoutNames<-movieData[,-1]
+
+
+Part 3. Normalize Data
+kmeans requires a numeric matrix as its input data. So, we have to convert movieDataWithoutNames into a numeric matrix. Use scale() function to normalize data 
+in movieDataWithoutNames as a numeric matrix and assign normalized data to a variable named movieDataWithoutNamesMatrix.
+	> movieDataWithoutNamesMatrix<-scale(movieDataWithoutNames)
+
+Part 4. Find Clusters Using A Random Number for Number of Clusters
+In general we do not know the true number of clusters. Since k-means clustering requires that you specify in advance the number of clusters to extract, you can either randomly select a number or use few available tools to get an idea on the number of clusters to extract. Again, this is just a rule of thumb and should not be strictly adhered to.
+A) Select the number of clusters to be 5.
+Use kmeans() function to cluster the data in the movieDataWithoutNamesMatrix
+	> kbest.p<-5
+	> numClusters<-kmeans(movieDataWithoutNamesMatrix,kbest.p,nstart=100,iter.max=100)
+	> summary(numClusters)
+				Length Class  Mode   
+	cluster       100   -none- numeric
+	centers      2815   -none- numeric
+	totss           1   -none- numeric
+	withinss        5   -none- numeric
+	tot.withinss    1   -none- numeric
+	betweenss       1   -none- numeric	
+	size            5   -none- numeric
+	iter            1   -none- numeric
+	ifault          1   -none- numeric
+	> numClusters$size
+	[1] 28  2 37 31  2
+
+
+B) Add clusters found in part A) as a column named fiveClusters back to the initial data, movieData.
+	> movieData$fiveClusters<-numClusters$cluster
+	> ncol(movieData)
+	[1] 565
+
+C) Print the number of elements in each cluster. You can simply use the table() function on the new column fiveClusters such as
+table(movieData$fiveClusters)
+	> table(movieData$fiveClusters)
+	1  	2  	3 	 4  5 
+	28  2 	37	 31  2 
+
+D) Print the barplot of clusters.
+   > ggplot(movieData) + geom_bar(aes(x=fiveClusters), fill="gray")
+
+   
+E) Print the name of movies in each cluster.
+	> for (i in 1:5){
+	+ cat(paste("=== Cluster ",i,"===","\n"))
+	+ print(movieData$movieName[movieData$fiveClusters==i])
+	+ cat("\n") }
+		
+	=== Cluster  1 === 
+	[1] Schindler's List           Casablanca                 The Wizard of Oz           Lawrence of Arabia        
+	[5] Star Wars                  Bridge on the River Kwai   Dr. Strangelove            Apocalypse Now            
+	[9] LOTR: Return of the King   Gladiator                  From Here to Eternity      Saving Private Ryan       
+	[13] Raiders of the Lost Ark    Ben-Hur                    Doctor Zhivago             Patton                    
+	[17] Braveheart                 Butch Cassidy & Sundance   Treasure of Sierra Madre   Platoon                   
+	[21] Dances with Wolves         The Pianist                All Quiet on Western Front The Grapes of Wrath       
+	[25] Shane                      The African Queen          Stagecoach                 Mutiny on the Bounty      
+	100 
+	Levels: 12 Angry Men 2001: A Space Odyssey A Clockwork Orange ... Yankee Doodle Dandy
+	
+	=== Cluster  2 === 
+	[1] City Lights       Good Will Hunting
+	100 Levels: 12 Angry Men 2001: A Space Odyssey A Clockwork Orange ... Yankee Doodle Dandy
+	
+	=== Cluster  3 === 
+	[1] The Godfather            The Shawshank Redemption Raging Bull              Citizen Kane            
+	[5] Titanic                  The Godfather: Part II   Sunset Blvd.             Forrest Gump            
+	[9] The Sound of Music       The Silence of the Lambs Chinatown                Singin' in the Rain     
+	[13] It's a Wonderful Life    Amadeus                  Gandhi                   Streetcar Named Desire  
+	[17] Philadelphia Story       American in Paris        Best Years of Our Lives  Good, Bad and Ugly      
+	[21] The Apartment            High Noon                Goodfellas               The King's Speech       
+	[25] It Happened One Night    A Place in the Sun       Midnight Cowboy          Rain Man                
+	[29] Annie Hall               Out of Africa            Terms of Endearment      Giant                   
+	[33] The Green Mile           Network                  Taxi Driver              Rebel Without Cause     
+	[37] Yankee Doodle Dandy     
+	100 Levels: 12 Angry Men 2001: A Space Odyssey A Clockwork Orange ... Yankee Doodle Dandy
+	
+	=== Cluster  4 === 
+	[1] One Flew Over Cuckoo Nest  Gone with the Wind         Psycho                     Vertigo                   
+	[5] On the Waterfront          West Side Story            E.T. the Extra-Terrestrial 2001: A Space Odyssey     
+	[9] Some Like It Hot           Unforgiven                 Rocky                      To Kill a Mockingbird     
+	[13] My Fair Lady               Jaws                       The Exorcist               The Deer Hunter           
+	[17] The French Connection      Tootsie                    Fargo                      Close Encounters 3rd Kind 
+	[21] Nashville                  The Graduate               American Graffiti          Pulp Fiction              
+	[25] The Maltese Falcon         A Clockwork Orange         Wuthering Heights          Double Indemnity          
+	[29] Rear Window                The Third Man              North by Northwest        
+	100 Levels: 12 Angry Men 2001: A Space Odyssey A Clockwork Orange ... Yankee Doodle Dandy
+	
+	=== Cluster  5 === 
+	[1] 12 Angry Men              Mr. Smith Goes Washington
+	100 Levels: 12 Angry Men 2001: A Space Odyssey A Clockwork Orange ... Yankee Doodle Dandy
+	> 
+
+
+Part 5. Find Clusters Using Calinski-Harabasz Index
+A) Install package fpc
+The fpc package has a function called kmeansruns() that calls kmeans() over a range of k and estimates the best k.
+For data movieDataWithoutNamesMatrix, run kmeansruns() from 1–8 clusters, and use Calinski-Harabasz Index("ch"), criterion. 
+Print the best value of k reported in the bestk variable.
+Hint: Textbook Listing 8.11 on page 193.
+On my system it printed 2 as the value of bestk.
+	> install.packages("fpc")
+	> clustering.ch<-kmeansruns(movieDataWithoutNamesMatrix,krange=1:8,criterion="ch")
+	> clustering.ch$bestk
+	[1] 2
+
+
+B) Add the result of kmeansruns() as a new column named chClusters to the initial data movieData.
+	> movieData$chClusters<-clustering.ch$cluster
+
+C) Print the size of new clusters using the table() function with chClusters as shown below
+table(movieData$chClusters)
+On my system it prints: That means, the first cluster has 40 movies and the second cluster has 60 movies.
+1        2 
+40     60
+	
+	> table(movieData$chClusters)
+	1   2 
+	60  40 
+
+
+D) Print the barplot for the new clusters.
+	> ggplot(movieData) + geom_bar(aes(x=chClusters), fill="gray")
+
+
+E) Print the name of movies in each cluster.
+ 
+	> for (i in 1:2){
+	+ cat(paste("=== Cluster ",i,"===","\n"))
+	+ print(movieData$movieName[movieData$chClusters==i])
+	+ cat("\n") }
+	=== Cluster  1 === 
+	[1] The Godfather              The Shawshank Redemption   Schindler's List          
+	[4] Raging Bull                Casablanca                 Titanic                   
+	[7] Lawrence of Arabia         Sunset Blvd.               Forrest Gump              
+	[10] The Sound of Music         The Silence of the Lambs   Chinatown                 
+	[13] Bridge on the River Kwai   Singin' in the Rain        It's a Wonderful Life     
+	[16] Dr. Strangelove            Amadeus                    Apocalypse Now            
+	[19] Gandhi                     LOTR: Return of the King   Gladiator                 
+	[22] From Here to Eternity      Saving Private Ryan        Streetcar Named Desire    
+	[25] Philadelphia Story         American in Paris          Best Years of Our Lives   
+	[28] Ben-Hur                    Doctor Zhivago             Patton                    
+	[31] Braveheart                 Good, Bad and Ugly         Butch Cassidy & Sundance  
+	[34] Treasure of Sierra Madre   Platoon                    High Noon                 
+	[37] Dances with Wolves         The Pianist                Goodfellas                
+	[40] All Quiet on Western Front City Lights                The King's Speech         
+	[43] It Happened One Night      A Place in the Sun         Mr. Smith Goes Washington 
+	[46] Rain Man                   Annie Hall                 Out of Africa             
+	[49] Good Will Hunting          Terms of Endearment        Giant                     
+	[52] The Grapes of Wrath        Shane                      The Green Mile            
+	[55] Network                    The African Queen          Stagecoach                
+	[58] Mutiny on the Bounty       Rebel Without Cause        Yankee Doodle Dandy       
+	100 Levels: 12 Angry Men 2001: A Space Odyssey A Clockwork Orange ... Yankee Doodle Dandy
+	
+	=== Cluster  2 === 
+	[1] One Flew Over Cuckoo Nest  Gone with the Wind         Citizen Kane              
+	[4] The Wizard of Oz           The Godfather: Part II     Psycho                    
+	[7] Vertigo                    On the Waterfront          West Side Story           
+	[10] Star Wars                  E.T. the Extra-Terrestrial 2001: A Space Odyssey     
+	[13] Some Like It Hot           12 Angry Men               Unforgiven                
+	[16] Raiders of the Lost Ark    Rocky                      To Kill a Mockingbird     
+	[19] My Fair Lady               Jaws                       The Apartment             
+	[22] The Exorcist               The Deer Hunter            The French Connection     
+	[25] Midnight Cowboy            Tootsie                    Fargo                     
+	[28] Close Encounters 3rd Kind  Nashville                  The Graduate              
+	[31] American Graffiti          Pulp Fiction               The Maltese Falcon        
+	[34] A Clockwork Orange         Taxi Driver                Wuthering Heights         
+	[37] Double Indemnity           Rear Window                The Third Man             
+	[40] North by Northwest        
+	100 Levels: 12 Angry Men 2001: A Space Odyssey A Clockwork Orange ... Yankee Doodle Dandy
+	> 
+
+
+
+Part 6. Evaluate Model Performance
+A) How can you evaluate the performance of the K-means?
+	Distance from mean values of each cluster is the measure of k-means performance.
+	In order to calculate, run kmeans several times with different random starts, and then select the clustering with the lowest total WSS.
+
+B) Based on your answer for part A), what can you conclude for the K-means algorithm results applied to the problem you are solving for this assignment? 
+	With number of clusters - 5 : total wss is 1
+	> summary(numClusters)
+				Length Class  Mode   
+	cluster       100   -none- numeric
+	centers      2815   -none- numeric
+	totss           1   -none- numeric
+	withinss        5   -none- numeric
+	tot.withinss    1   -none- numeric
+	betweenss       1   -none- numeric
+	size            5   -none- numeric
+	iter            1   -none- numeric
+	ifault          1   -none- numeric
+
+	with number of clusters - 2(by running kmeansrun()) : total wss is 1
+	> summary(clustering.ch)
+				Length Class  Mode   
+	cluster       100   -none- numeric
+	centers      1126   -none- numeric
+	totss           1   -none- numeric
+	withinss        2   -none- numeric
+	tot.withinss    1   -none- numeric
+	betweenss       1   -none- numeric
+	size            2   -none- numeric
+	iter            1   -none- numeric
+	ifault          1   -none- numeric
+	crit            8   -none- numeric
+	bestk           1   -none- numeric
+	
+	Hence for the given dataset, number of clusters 2 and 5 both are acceptable.
+	

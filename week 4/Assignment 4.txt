@@ -1,0 +1,225 @@
+Pravalika Tirumala
+CWID: 50180701
+Week 4 Home work Assignment
+
+
+
+
+Step 1. Download the data file ENB2012_data.csv from DocSharing. Load it into a data frame named energyData,
+using read.csv()from R's base installation or fread() function from data.table package.
+	> energyData<-read.csv("C:/Users/ADMIN/Downloads/ENB2012_data.csv",head=TRUE)
+
+	
+
+Step 2: Print the column names, number of rows, and number of columns in the energyData data frame.
+	> names(energyData)
+	[1] "X1"  "X2"  "X3"  "X4"  "X5"  "X6"  "X7"  "X8"  "Y1"  "Y2"  "X"   "X.1"
+	> 
+	> nrow(energyData)
+	[1] 768
+	> ncol(energyData)
+	[1] 12
+	> 
+
+	
+	
+Step 3: Data in ENB2012_data.csv file has few issues that needs to be fixed. It has columns that have no data and therefore they are filled in with NA. 
+Print the number of NAs per column and per row in the data frame energyData. 
+
+	> energyData[energyData ==""]=NA
+	> print(energyData)
+	     X1    X2    X3     X4  X5  X6   X7  X8   Y1   Y2  X  X.1
+	1   0.98 514.5 294.0 110.25 7.0  2   NA  0 15.55 21.33 NA  NA
+	2   0.98 514.5 294.0 110.25 7.0  3   NA  0 15.55 21.33 NA  NA
+	3   0.98 514.5 294.0 110.25 7.0  4 0.00  0 15.55 21.33 NA  NA
+	4   0.98 514.5 294.0 110.25 7.0  5 0.00  0 15.55 21.33 NA  NA
+
+	> colSums(is.na(energyData))
+	X1  X2  X3  X4  X5  X6  X7  X8  Y1  Y2   X  X.1 	
+	0   0   0   0   0   0   13   0   0   0  768 768 
+	> rowSums(is.na(energyData))
+		[1] 3 3 2 2 2 3 2 3 2 2 3 2 3 2 3 2 3 2 2 2 2 2 2 3 3 3 3 3 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+	   [51] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+	  [101] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+	  [151] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+		-------------------------------
+
+		
+
+Step 4: Eliminate the columns that have all entries filled in with NA. 
+	> colSums(is.na(energyData))==nrow(energyData)
+	X1    X2    X3    X4    X5    X6    X7    X8    Y1    Y2     X   X.1 
+	FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE 
+
+	> columnsFilledWithNA <- which(colSums(is.na(energyData)) == nrow(energyData))
+	> columnsFilledWithNA
+	X   X.1 
+	11  12 
+	
+	> energyData1<-subset(energyData, select = -c(X,X.1))
+	> energyData1
+	     X1    X2    X3     X4  X5  X6   X7  X8  Y1    Y2
+	1   0.98 514.5 294.0 110.25 7.0  2   NA  0 15.55 21.33
+	2   0.98 514.5 294.0 110.25 7.0  3   NA  0 15.55 21.33
+	3   0.98 514.5 294.0 110.25 7.0  4 0.00  0 15.55 21.33
+	4   0.98 514.5 294.0 110.25 7.0  5 0.00  0 15.55 21.33
+	5   0.90 563.5 318.5 122.50 7.0  2 0.00  0 20.84 28.28
+	---------------------------------
+	
+	
+	
+Step 5: Rename columns as follows        
+OLD -> NEW COLUMN NAMES
+X1 -> Relative_Compactness 
+X2 -> Surface_Area 
+X3 -> Wall_Area 
+X4 -> Roof_Area 
+X5 -> Overall_Height 
+X6 -> Orientation 
+X7 -> Glazing_Area 
+X8 -> Glazing_Area_Distribution 
+y1 -> Heating_Load 
+y2 -> Cooling_Load
+	> setnames(energyData1,old=c('X1','X2','X3','X4','X5','X6','X7','X8','Y1','Y2'),
+	new=c('Relative_Compactness','Surface_Area','Wall_Area','Roof_Area','Overall_Height',
+	'Orientation','Glazing_Area','Glazing_Area_Distribution','Heating_Load','Cooling_Load'))
+		
+	Relative_Compactness Surface_Area Wall_Area Roof_Area	Overall_Height Orientation Glazing_Area	Glazing_Area_Distribution Heating_Load Cooling_Load
+	1     0.98        	514.5     294.0    110.25	 7.0           2           NA	 	 0       		 15.55        21.33
+	2     0.98        	514.5     294.0    110.25	 7.0           3           NA		 0        		 15.55        21.33
+	3     0.98        	514.5     294.0    110.25	 7.0           4         0.00		 0        		 15.55        21.33
+	4     0.98        	514.5     294.0    110.25	 7.0           5         0.00		 0        		 15.55        21.33
+	5     0.90        	563.5     318.5    122.50        7.0           2         0.00		 0        		 20.84        28.28
+	---------------------------------------------------
+
+
+
+Step 6: Check if any columns have NAs. 
+For each column that has NAs, replace NA by 0.0. (Don't add a new column, just replace NAs by 0.0 in the column itself)
+
+	> colSums(is.na(energyData1))
+     Relative_Compactness              Surface_Area                 Wall_Area                 Roof_Area            Overall_Height               Orientation 
+                        0                         0                         0                         0                         0                         0 
+             Glazing_Area Glazing_Area_Distribution              Heating_Load              Cooling_Load 
+                       13                         0                         0                         0 
+	> 
+	Column Glazing_Area is having NA values
+	> energyData1$Glazing_Area<-ifelse(is.na(energyData1$Glazing_Area),0,energyData1$Glazing_Area)
+	> summary(energyData1$Glazing_Area)
+	Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+	0.0000  0.1000  0.2500  0.2344  0.4000  0.4000 
+
+	
+	
+Step 7: Print density plot of each predictor: 
+"Relative_Compactness"      "Surface_Area"              "Wall_Area"                 "Roof_Area"                
+"Overall_Height"            "Orientation"               "Glazing_Area"              "Glazing_Area_Distribution"
+"Heating_Load"              "Cooling_Load"
+  
+	> ggplot(energyData1)+geom_density(aes(x=Relative_Compactness))  
+	> ggplot(energyData1)+geom_density(aes(x=Surface_Area))
+	> ggplot(energyData1)+geom_density(aes(x=Wall_Area))
+	> ggplot(energyData1)+geom_density(aes(x=Roof_Area))
+	> ggplot(energyData1)+geom_density(aes(x=Overall_Height))
+	> ggplot(energyData1)+geom_density(aes(x=Orientation))
+	> ggplot(energyData1)+geom_density(aes(x=Glazing_Area))
+	> ggplot(energyData1)+geom_density(aes(x=Glazing_Area_Distribution))
+	> ggplot(energyData1)+geom_density(aes(x=Heating_Load))
+	> ggplot(energyData1)+geom_density(aes(x=Cooling_Load))
+
+Investigate the predictors in terms of their distributions.
+A) Are there any skewed predictors(i.e., columns)?
+	Yes, there is skewness for columns: Relative_Compactness, Surface_Area, Roof_Area, Glazing_Area, Glazing_Area_Distribution
+	Heating_Load, Cooling_Load
+B) Which predictors are bimodal?
+	Orientation, Glazing_Area, Heating_load, Cooling_Load
+C) Which predictors are multimodal?
+	Wall_Area,Glazing_Area_Distribution
+
+	
+	
+Step 8. Apply normalization transformation to the predictors: Surface_Area, Wall_Area, Roof_Area.
+Reprint the density plots of Surface_Area, Wall_Area, Roof_Area. 
+Are there any significant differences in the distributions of Surface_Area, Wall_Area, Roof_Area after transformation?
+If there is no difference, then explain the reason.
+	SURFACE_AREA:
+	> summary(energyData1$Surface_Area)
+	Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 	
+	514.5   606.4   673.8   671.7   741.1   808.5 
+	> print(meanSurface_Area<-mean(energyData1$Surface_Area))
+	[1] 671.7083
+	> print(stdDSurface_Area<-sd(energyData1$Surface_Area))
+	[1] 88.08612
+	> energyData1$Surface_Area<-(energyData1$Surface_Area-meanSurface_Area)/stdDSurface_Area
+	> summary(energyData1$Surface_Area)
+		Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+	-1.78471 -0.74170  0.02318  0.00000  0.78805  1.55293 
+	> ggplot(energyData1)+geom_density(aes(x=Surface_Area))
+	THERE IS NO SIGNIFICANT DIFFERENCE IN THE DISTRIBUTION because Normalizing by mean and standard deviation is most meaningful when the data
+	distribution is roughly symmetric. For Surface_Area mean and meadian are almost equal i.e roughly symmetric hence Normalization does not bring 
+	the significant difference.
+
+	
+	WALL_AREA:
+	> summary(energyData1$Wall_Area)
+	Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+	245.0   294.0   318.5   318.5   343.0   416.5 
+	> print(meanWall_Area<-mean(energyData1$Wall_Area))
+	[1] 318.5
+	> print(sdDWall_Area<-sd(energyData1$Wall_Area))
+	[1] 43.62648
+	> energyData1$Wall_Area<-(energyData1$Wall_Area-meanWall_Area)/sdDWall_Area
+	> summary(energyData1$Wall_Area)
+	Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+	-1.6848 -0.5616  0.0000  0.0000  0.5616  2.2463 
+	> ggplot(energyData1)+geom_density(aes(x=Wall_Area))
+	THERE IS NO SIGNIFICANT DIFFERENCE IN THE DISTRIBUTION	because Normalizing by mean and standard deviation is most meaningful when the data
+	distribution is roughly symmetric. For Wall_Area mean and meadian are exactly equal i.e symmetric hence Normalization does not bring 
+	the significant difference.
+			     
+	
+	ROOF_AREA:
+	> summary(energyData1$Roof_Area)
+	Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+	110.2   140.9   183.8   176.6   220.5   220.5 
+	> print(meanRoof_Area<-mean(energyData1$Roof_Area))
+	[1] 176.6042
+	> print(sdDRoof_Area<-sd(energyData1$Roof_Area))
+	[1] 45.16595
+	> energyData2$Roof_Area<-(energyData2$Roof_Area-meanRoof_Area)/sdDRoof_Area
+	> summary(energyData2$Roof_Area)
+	   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+	-1.4691 -0.7911  0.1582  0.0000  0.9719  0.9719 
+	> ggplot(energyData1)+geom_density(aes(x=Roof_Area))
+	THERE IS SIGNIFICANT DIFFERENCE IN THE DISTRIBUTION AFTER NORMALIZATION.
+
+
+
+Step 9: Print the scatter plot between Heating_Load and Cooling_Load.
+	>  ggplot(energyData1,aes(x=Heating_Load,y=Cooling_Load))+geom_point()+ylim(8,50)
+
+	
+	
+Step 10:
+A) Use Cooling_Load predictor to create the following ranges by using the cut() function. 
+[10,20]   (20,30]   (30,40]    (40,50] 
+Add the result of the cut() function as a new column named coolingLoadRange to the data frame energyData you created in Step 1.
+Hint: Check textbook and lecture notes for a sample.
+
+	> breaks<-c(0,10,20,30,40,50,60)
+	> energyData$CoolingLoadRange<-cut(energyData1$Cooling_Load,breaks=breaks,include.lowest=T)
+	> summary(energyData$CoolingLoadRange)
+	[0,10] (10,20] (20,30] (30,40] (40,50] (50,60] 
+	0     348     166     215      39       0 
+	> names(energyData)
+	[1] "X1"               "X2"               "X3"              
+	[4] "X4"               "X5"               "X6"              
+	[7] "X7"               "X8"               "Y1"              
+	[10] "Y2"               "X"                "X.1"             
+	[13] "CoolingLoadRange"
+	> 
+	
+	
+	
+B) Plot histogram of the coolingLoadRange 
+	>  ggplot(energyData)+geom_bar(aes(x=CoolingLoadRange))

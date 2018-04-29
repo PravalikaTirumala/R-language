@@ -1,0 +1,198 @@
+﻿Pravalika Tirumala
+50180701
+Decision Trees
+
+
+Step 1: Download data file data_banknote_authentication.csv from Doc Sharing and save into a data frame named banknoteData
+	
+	> banknoteData<-read.csv("E:/1 FALL 2017/data analysis and visualization/doc sharing/data_banknote_authentication.csv")
+	> names(banknoteData)
+	[1] "WaveletVar"  "WaveletSkew" "WaveletCurt" "Entropy"     "Class"      
+	> nrow(banknoteData)
+	[1] 1372
+	> ncol(banknoteData)
+	[1] 5
+
+
+Step 2: Set a seed value
+Example: set.seed (10032)
+	
+	> set.seed(12345)
+
+
+Step 3: Convert Class column to a factor of categorical data.
+The class variable has two values: 0=Genuine, 1=Forged. Transform class variable into a categorical variable using factor function. Recall that factors are 
+crucial in R because they determine how data is analyzed and presented visually. We would like to associate 0 = Genuine and 1 = Forged. Any analyses performed 
+on the  Class variable will treat the variable as nominal and select the statistical methods appropriate for this level of measurement.
+	
+	> banknoteData$Class<-factor(banknoteData$Class,levels=c(0,1),labels=c("Genuine","Forged"))
+
+
+Step 4: Split data 80% training and 20% test data.
+	> nrow(banknoteData)
+	[1] 1372
+	> sampleData<-sort(sample(nrow(banknoteData),nrow(banknoteData)*0.8))
+	> training<-banknoteData[sampleData,]
+	> test<-banknoteData[-sampleData,]
+	> nrow(training)
+	[1] 1097
+	> nrow(test)
+	[1] 275
+
+	
+Step 5: Create a decision tree model using training data set for classifying the banknote data as genuine or forged. That means the formula you pass to rpart()
+ function will have Class as response variable and all other remaining predictors as inputs. Also, you need to use method="class" in rpart() function.
+Hint: Check lecture notes for other parameters of rpart() function.
+	> library('rpart')
+	> banknoteTree<-rpart(Class~.,method="class",data=training,control=rpart.control(minsplit=4,cp=0.0001))
+	> summary(banknoteTree)
+	Call:
+	rpart(formula = Class ~ ., data = training, method = "class", control = rpart.control(minsplit = 4, cp = 1e-04)) n= 1097 
+	
+				CP nsplit   rel error     xerror        xstd
+	1  0.645360825      0 1.000000000 1.00000000 0.033915758
+	2  0.111340206      1 0.354639175 0.36288660 0.025063464
+	3  0.061855670      2 0.243298969 0.25979381 0.021774582
+	
+	
+
+Step 6: Print the data in cptable of the tree generated in Step 5.
+	> banknoteTree$cptable
+				CP nsplit   rel error     xerror        xstd
+	1  0.645360825      0 1.000000000 1.00000000 0.033915758
+	2  0.111340206      1 0.354639175 0.36288660 0.025063464
+	3  0.061855670      2 0.243298969 0.25979381 0.021774582
+	4  0.043298969      3 0.181443299 0.21237113 0.019918964
+	5  0.021649485      4 0.138144330 0.16082474 0.017550494
+	6  0.016494845      6 0.094845361 0.14432990 0.016691263
+	7  0.011340206      9 0.045360825 0.07216495 0.012001934
+	8  0.004123711     11 0.022680412 0.05360825 0.010388106
+	9  0.002061856     13 0.014432990 0.04329897 0.009357735
+	10 0.001030928     18 0.004123711 0.04123711 0.009136457
+	11 0.000100000     22 0.000000000 0.03917526 0.008909250
+	> 
+
+What is the minimum cross-validated error?
+	0.03917526
+
+How many terminal nodes should the best tree have?
+	The best tree have 23 terminal nodes.
+	
+	
+Step 7: Use R’s base functions plot() and text() to plot tree generated in Step 5. To control the text size you can use par() function.
+Hint: Check lecture notes.
+	> par(cex=0.7)
+	> plot(banknoteTree,uniform=T)
+	> text(banknoteTree)
+
+
+Step 8: Use prp() function to plot the tree.
+Install package rpart.plot before using prp function.
+A sample is given in the lecture notes.
+	install.packages("rpart.plot")
+	> require(rpart.plot)
+	> par(cex=1.5)
+	> prp(banknoteTree,type=2,extra=104,leaf.round=1,fallen.leaves=TRUE,main="Decision Tree")
+
+
+
+Step 9: Use plotcp() function to plot the cross-validated error against the complexity parameter.From the plot, what is a good choice for the final tree size?
+What is the cp (complexity parameter) value that can be used to prune the tree?Hint: Recall that the plot suggests selecting the tree with the leftmost cp 
+value below the line. Check lecture notes for a sample.Question: What is cross-validation? Why is it used?
+	
+	> plotcp(banknoteTree)
+
+	A good choice for the final tree size is the smallest tree whose cross-validated er	ror is within one standard error of the minimum  cross-validated error
+	value: Hence for the given tree, 14 is the good choice for the final tree size.
+	
+	cp- 0.0029, can be used to prune the tree
+
+	cross-validation, is a technique  to evaluate the performance of the model on unseen future data. In repeated cross-validation, a subset of the training data 
+	is used to build a model, and a complementary subset of the training data is used to score the model.
+	It is used:
+	to estimate effects of overfitting
+	to estimate the degree of overfit we have hidden in our models.
+
+
+Step 10: Use printcp() function to print out the complexity table.
+What is a good choice for a pruned tree size?
+Does the tree size suggested by printcp() agree with the choice of tree size from Step 10?
+	> printcp(banknoteTree)
+	Classification tree:
+	rpart(formula = Class ~ ., data = training, method = "class", 
+		control = rpart.control(minsplit = 4, cp = 1e-04))
+	Variables actually used in tree construction:
+	[1] Entropy     WaveletCurt WaveletSkew WaveletVar 
+	Root node error: 485/1097 = 0.44211
+	n= 1097 
+			CP	 	nsplit 	rel error   xerror      xstd
+	1  0.6453608      0 	1.0000000 	1.000000 	0.0339158
+	2  0.1113402      1 	0.3546392 	0.362887 	0.0250635
+	3  0.0618557      2 	0.2432990 	0.259794 	0.0217746
+	4  0.0432990      3 	0.1814433 	0.212371 	0.0199190
+	5  0.0216495      4 	0.1381443 	0.160825 	0.0175505
+	6  0.0164948      6 	0.0948454 	0.144330 	0.0166913
+	7  0.0113402      9 	0.0453608 	0.072165 	0.0120019
+	8  0.0041237     11 	0.0226804 	0.053608 	0.0103881
+	9  0.0020619     13 	0.0144330 	0.043299 	0.0093577
+	10 0.0010309     18 	0.0041237 	0.041237 	0.0091365
+	11 0.0001000     22 	0.0000000 	0.039175 	0.0089092
+	Good choice for a prune tree size is : 22
+	No,it dose not agree with the tree size from step 9
+	
+	
+Step 11: Prune Tree
+Use the cp value you decided in Step 10 to prune the tree.
+Use prune() function.
+	> prunedTree<-prune(banknoteTree,cp=0.0001) 
+
+	
+Step 12: Use prp() function to plot the pruned tree.
+	> prp(prunedTree,type=2,extra=104,fallen.leaves=TRUE,main="pruned decision tree")
+
+	
+Step 13: Model Performance
+Use predict() function  with pruned tree model and test data set to classify each observation in the test data set. Make sure that you use type=”class” in 
+predict() function.  Print a cross-tabulation of the actual status against the predicted status.
+Hint: Print confusion matrix using table() function.
+	
+	> treePrediction<-predict(prunedTree,test,type="class")
+	> summary(treePrediction)
+	Genuine  Forged 
+		147     128 
+		
+	> table(test$Class,treePrediction,dnn=c("Actual","Predicted"))
+			Predicted
+	Actual    Genuine Forged
+	Genuine     147      3
+	Forged        0    125
+
+
+Step 14: Evaluate Accuracy of the Model
+Use result of Step 13 to evaluate the model accuracy.
+Hint: Check lecture notes.
+	> predTable<-table(test$Class,treePrediction,dnn=c("Actual","Predicted"))
+	> accuracy<-(predTable[1,1]+predTable[2,2])/sum(predTable)
+	> accuracy
+	[1] 0.9890909
+
+
+Step 15: Apply your model(from pruned tree) to find out whether the following banknotes are genuine or forged.
+	
+	> simpleDFrame<-read.csv("E:/1 FALL 2017/data analysis and visualization/doc sharing/week10.csv")
+	> simpleDFrame
+	WaveletVar WaveletSkew WaveletCurt  Entropy
+	1     1.6900      4.6800     -3.8073 -0.18000
+	2     5.5459      4.1674     -2.4586 -0.46280
+	3     7.8660     -4.6383      1.9242  1.10648
+	
+	> simpleDFrame$Class<-predict(prunedTree,simpleDFrame,type="class")
+	> simpleDFrame$Class
+	[1] Forged  Genuine Genuine
+	Levels: Genuine Forged
+	
+	> simpleDFrame
+	WaveletVar WaveletSkew WaveletCurt  Entropy   Class
+	1     1.6900      4.6800     -3.8073 -0.18000  Forged
+	2     5.5459      4.1674     -2.4586 -0.46280 Genuine
+	3     7.8660     -4.6383      1.9242  1.10648 Genuine

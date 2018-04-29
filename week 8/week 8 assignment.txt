@@ -1,0 +1,111 @@
+Pravalika Tirumala
+cwid: 50180701
+WEEK 8 Assignment
+Unsupervised Learning
+Hierarchical Clustering and PCA
+
+
+1. Load Data 
+Download kidneyDisease.csv from DocSharing and read into an R data frame or data table, named kidneyData.
+To read as a data table you can use the following command:
+data.table(read.csv(file="path_to_file_kidneyDisease.csv", head=TRUE, sep=','))
+	> library(data.table)
+	> kidneyData<-data.table(read.csv(file="E:/1 FALL 2017/data analysis and visualization/doc sharing/kidneyDisease.csv",head=TRUE,sep=','))
+
+
+2. Convert categorical variables into numerical, except  the class column. The categorical variables are 
+appet, rbc, pc, pcc, ba, htn, dm, cad, pe, ane
+Simply replace text values by 0 or 1. For example, the appet column has two values "good" or "poor".
+So, in your conversion replace "good" by 1 and "poor" by 0.
+Repeat the same process for other categorical variables.
+	
+	> kidneyData$appet<-ifelse(kidneyData$appet=="good",1,0) 
+	> kidneyData$rbc<-ifelse(kidneyData$rbc=="normal",1,0) 
+	> kidneyData$pc<-ifelse(kidneyData$pc=="normal",1,0) 
+	> kidneyData$pcc<-ifelse(kidneyData$pcc=="present",1,0) 
+	> kidneyData$ba<-ifelse(kidneyData$ba=="present",1,0)
+	> kidneyData$htn<-ifelse(kidneyData$htn=="yes",1,0) 
+	> kidneyData$dm<-ifelse(kidneyData$dm=="yes",1,0) 
+	> kidneyData$cad<-ifelse(kidneyData$cad=="yes",1,0) 
+	> kidneyData$pe<-ifelse(kidneyData$pe=="yes",1,0) 
+	> kidneyData$ane<-ifelse(kidneyData$ane=="yes",1,0) 
+
+3. Replace all NAs by zero
+	> kidneyData[is.na(kidneyData)]<-0
+
+
+4. Create a variable named kidneyDataMatrix using the scale() function for all data in the kidneyData except the class column.
+Hint: Textbook page 180.
+	>  colsToUse<-colnames(kidneyData)[-25]
+	>  colsToUse
+	[1] "age"   "bp"    "sg"    "al"    "su"    "rbc"   "pc"   "pcc"   "ba"    "bgr"   "bu"    "sc"    "sod"   "pot"  
+	[15] "hemo"  "pcv"   "wbcc"  "rbcc"  "htn"   "dm"    "cad"  "appet" "pe"    "ane" 	
+	> kidneyDataMatrix<-scale(kidneyData[,..colsToUse])
+	> kDataCenter <- attr(kidneyDataMatrix,"scaled:center")
+	> kDataScale <- attr(kidneyDataMatrix,"scaled:scale")
+
+5. Create a distance matrix(also called dissimilarity matrix) using dist() function with method="euclidean".
+	> kDataeucli<-dist(kidneyDataMatrix,method="euclidean")
+	
+6. Use hclust() function to build the hierarchical clustering models using the distance matrix from Step 5 and the following linkage methods:
+complete, average, single, centroid, ward.D2, ward.D
+Hint: Textbook page 180.
+	> KDataComp<-hclust(kDataDistMatrix,method="complete")
+	> KDataAvg<-hclust(kDataDistMatrix,method="average")
+	> KDataSing<-hclust(kDataDistMatrix,method="single")
+	> KDataCentr<-hclust(kDataDistMatrix,method="centroid")
+	> KDatawardD<-hclust(kDataDistMatrix,method="ward.D")
+	> KDatawardD2<-hclust(kDataDistMatrix,method="ward.D2")
+	
+
+7. Plot the dendrograms
+	> plot(KDataComp,labels=kidneyData$class)
+	> plot(KDataAvg,labels=kidneyData$class)
+	> plot(KDataSing,labels=kidneyData$class)
+	> plot(KDataCentr,labels=kidneyData$class)
+	> plot(KDatawardD,labels=kidneyData$class)
+	> plot(KDatawardD2,labels=kidneyData$class)
+
+
+8. How many clusters are suggested by the dendrograms?
+	Dendrogram with the following methods and number of clusters are given below:
+	Complete - 12	Average - 8		Single 3
+	Centroid 23		ward.D 6		ward.D2 10
+
+9. Based on your answer in Part 8,  extract the members of each cluster using the function cutree().
+Hint: Textbook page 181. You can also use the following technique for this part: Add the result of the cutree() function as a new column defining cluster to the
+ kidneyData. That means, it will assign cluster number to the row that belongs the cluster. For example, the following statement adds a new column, cluster1, 
+ to the kidneyData. The column cluster1 contains the result of hclust() for two clusters, k=2. kidneyData$cluster1 <- cutree(hclustOutput, k = 2)
+	
+	> kidneyData$CompleteCol<-cutree(KDataComp,k=12)
+	> kidneyData$AvgCol<-cutree(KDataAvg,k=8)
+	> kidneyData$SingCol<-cutree(KDataSing,k=3)
+	> kidneyData$CentrCol<-cutree(KDataCentr,k=23)
+	> kidneyData$wardDCol<-cutree(KDatawardD,k=6)
+	> kidneyData$wardD2Col<-cutree(KDatawardD2,k=10)
+
+
+
+Part II 
+Visualizing Clusters and Principal Component Analysis
+For this part, you can either use the technique given in the textbook, page 183 or use the package FactoMineR.  In case you decide to use FactoMinR you need to install the package FactoMineR.
+
+1.  Use PCA() function by passing the kidneyDataMatrix  to visualize the clustering by projecting the data onto the first two principal components of the data.
+Based on the visual display, how many clusters seems to be appropriate for the data? 
+
+	> library(ggplot2)
+	> princ<-prcomp(kidneyDataMatrix)
+	> ncomp<-2
+	> project<-predict(princ,newdata=kidneyDataMatrix)[,1:ncomp]
+	> project.plus<-cbind(as.data.frame(project))
+	> ggplot(project.plus,aes(x=PC1,y=PC2))+ geom_text(aes(label=kidneyData$class))
+	
+	> install.packages("FactoMineR")
+	> pca<-prcomp(kidneyDataMatrix)
+	> plot(pca)
+	
+	Based on the visual display, 3 clusters are appropriate for the data.
+
+
+ 
+ 

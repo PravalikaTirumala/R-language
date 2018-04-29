@@ -1,0 +1,123 @@
+Pravalika Tirumala
+CWID 50180701
+Week 12 Assignment
+GAM
+Due Nov 27
+
+
+1. Install library mgcv.
+	> library(mgcv)
+
+2. Load data file science2006.csv from Doc Sharing.
+	> science<-read.csv("E:/1 FALL 2017/data analysis and visualization/doc sharing/science2006.csv")
+	> names(science)
+	[1] "Country"  "Overall"  "Issues"   "Explain"  "Evidence" "Interest"
+	[7] "Support"  "Income"   "Health"   "Edu"      "HDI"     
+	> nrow(science)
+	[1] 65
+	> ncol(science)
+	[1] 11
+
+	
+3. Remove rows where Overall, Health, Edu, and Income columns have NA values.
+	> scienceRemNA <- science[!with(science, is.na(science$Overall) | is.na(science$Health) | is.na(science$Edu) | is.na(science$Income)),]
+	> nrow(scienceRemNA)
+	[1] 52
+	13 rows were removed
+	
+4. Split 80% of data for training and 20% for testing. Assign training data to the variable trainData.
+	> nrow(scienceRemNA)
+	[1] 52
+	> sampleData<-sort(sample(nrow(scienceRemNA),nrow(scienceRemNA)*0.8))
+	> trainData<-scienceRemNA[sampleData,]
+	> nrow(trainData)
+	[1] 41
+	
+
+5. Assign test data to the variable testData.
+	> testData<-scienceRemNA[-sampleData,]
+	> nrow(testData)
+		[1] 11
+
+6. Plot Overall vs Income, Edu, and Health:
+	> library(ggplot2)
+	> ggplot(scienceRemNA,aes(x=Income,y=Overall))+geom_point()+ylim(320,565)
+	> ggplot(scienceRemNA,aes(x=Edu,y=Overall))+geom_point()+ylim(320,565)
+	> ggplot(scienceRemNA,aes(x=Health,y=Overall))+geom_point()+ylim(320,565)
+
+	
+7. Fit a GAM model on the training data using Overall as response and the following features as predictors:
+Income, Edu, and Health.
+Note: In the formula use spline function s() for predictors.
+For more information on spline function s() and how to use it in the GAM formula, please check textbook Section 9.2
+	> gamFormula<-as.formula("Overall ~ s(Income)+s(Edu)+s(Health)")
+	> gamModel<-gam(gamFormula,data=trainData)
+
+8. Print the value of converged attribute of the model created in step 7 to make sure that model is converging.
+	> gamModel$converged
+	[1] TRUE
+	
+9. Plot model.
+Use plot.gam() function to combine multiple plots into one overall graph, you can use
+plot.gam(GAMModel, pages=1, pch=19, cex=0.25,scheme=1, col='blue', shade=T,shade.col='gray90')
+	> plot.gam(gamModel, pages=1, pch=19, cex=0.25,scheme=1, col='blue', shade
+      
+
+9. Use predict() function on test data to get the prediction of the model. Assign the result of predict() function to variable predictionResult.
+	> predictionResult<-predict(gamModel,newdata=testData)
+	> predictionResult
+		6        7       25       32       40       41       47       52       53       55       64 
+	516.6044 367.5072 496.9038 484.2496 510.4916 503.0351 426.4745 504.1219 500.4526 519.3382 512.4347 
+	
+
+10. Compute Root Mean Square Error (RMSE) for the prediction. Using the result of predict() function in step 9 and the  Overall column of test data, RMSE can be computed as follows:
+sqrt(mean(testData[“Overall”]-predictionResult)^2)
+where predictionResult is the vector obtained in step 9.
+	> rMSE<-sqrt(mean(testData$Overall-predictionResult)^2)
+	> rMSE
+	[1] 5.783054
+	
+	(or)
+	
+	> actual<-testData$Overall
+	> resid.gln<-actual-predictionResult
+	> sqrt(mean(resid.gln)^2)
+	[1] 5.783054
+
+
+11. Print the summary() of the model and answer the following questions:
+	> summary(gamModel)
+	Family: gaussian 
+	Link function: identity 
+	Formula:
+	Overall ~ s(Income) + s(Edu) + s(Health)
+	Parametric coefficients:
+				Estimate Std. Error t value Pr(>|t|)    
+	(Intercept)  468.829      3.197   146.6   <2e-16 ***
+	---
+	Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+	Approximate significance of smooth terms:
+				edf Ref.df     F  p-value    
+	s(Income) 7.472  8.303 7.251 1.47e-05 ***
+	s(Edu)    5.758  6.741 2.764   0.0254 *  
+	s(Health) 1.000  1.000 1.008   0.3246    
+	---
+	Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+	R-sq.(adj) =   0.87   Deviance explained = 91.6%
+	GCV =  666.7  Scale est. = 419.05    n = 41
+	> 
+
+A) How much of variance is explained by the model?
+	The model explains over 90% of the variance.
+	
+	
+B) Based on the p-values in the summary, which of the predictors in the formula are not required to be used as non-linear fit?
+Hint: Large p-values of a predictor means there is no need for non-linear fit. A linear function is adequate for that predictor.
+	 Based on the p-value , the predictor "Health" is not required to be used as non-linear fit.
+	 
+	 
+C)Which feature is the most important, based on the summary?
+	Income is the most important feature based on the summary. After income Education is the important feature.
+
+12. What is the value of R2  ?
+	0.87

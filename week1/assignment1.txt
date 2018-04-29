@@ -1,0 +1,185 @@
+Name: Pravalika Tirumala
+CWID : 50180701
+
+Assignment 1: R Programming
+Due Sept 6, 2017
+
+Problem 1.
+ Create two vectors named v and w with the following contents:
+ 
+     v : 2,3,4,5,6,7,4,2
+     W: 9,10,2,34,5,18,9,2
+> v<-c(2:7,4,2)
+> w<-c(9,10,2,34,5,18,9,2)
+
+A)	Print the length of the vectors
+	> length(v)
+	[1] 8
+	> length(w)
+	[1] 8
+
+B)	Print all elements of the vectors
+	> print(v)
+	[1] 2 3 4 5 6 7 4 2
+	> w
+	[1]  9 10  2 34  5 18  9  2
+
+C)	Print elements at indicies 2 through 4.
+	> v[2:4]
+	[1] 3 4 5		(or)
+	> print(v[2:4])
+	[1] 3 4 5
+
+D)	Print the sum of the elements in each vector.
+	> sum(v)
+	[1] 33
+	> sum(w)
+	[1] 89
+
+E)	Find the mean of each vector. (Use R's mean() function)
+	> mean(v)
+	[1] 4.125
+	> mean(w)
+	[1] 11.125
+
+F) Sort the vectors in descending order and then print.
+	> sort(v,decreasing=T)
+	[1] 7 6 5 4 4 3 2 2
+	> sort(w,decreasing=T)
+	[1] 34 18 10  9  9  5  2  2
+
+G)  Add vectors v and w.
+	> print(v+w)
+	[1] 11 13  6 39 11 25 13  4
+	(or)
+	> sum<-v+w
+	> print(sum)
+	[1] 11 13  6 39 11 25 13  4
+
+H) Multiply vectors v and w.
+	> print(v*w)
+	[1]  18  30   8 170  30 126  36   4
+	(or)
+	> mul<-v*w
+	> print(mul)
+	[1]  18  30   8 170  30 126  36   4
+
+I) In vector v select  all elements that are greater than 2.
+	> v[v>2]
+	[1] 3 4 5 6 7 4
+
+J) In vector w select all elements that are less than 20.
+	> w[w<20]
+	[1]  9 10  2  5 18  9  2
+
+K) Multiply each element of vector v by 6.And then print.
+	> v*2
+	[1]  4  6  8 10 12 14  8  4
+
+L) Find maximum and minimum of each vector.
+	> max(v)
+	[1] 7
+	> max(w)
+	[1] 34
+	> min(v)
+	[1] 2
+	> min(w)
+	[1] 2
+ 
+M) In each vector, replace all elements with value of 2 by 80.
+	> v[v==2]<-80
+	> print(v)
+	[1] 80  3  4  5  6  7  4 80
+	> w[w==2]<-80
+	> w
+	[1]  9 10 80 34  5 18  9 80
+
+
+Problem 2. 
+
+Create a data frame with the following content:
+age	gender	salary
+20	M	24000
+35	F	89000
+40	M	80000
+55	M	56000
+63	F	30000
+21	F	56700
+32	M	87000
+44	M	105000
+
+ Hint: Create vectors for each column and then create a data frame using vectors. A sample is given in the lecture notes.
+
+age<-c(20,35,40,55,63,21,32,44)
+gender<-c('M','F','M','M','F','F','M','M')
+salary<-c(24000,89000,80000,56000,30000,56700,87000,105000)
+
+Soln:
+	> age<-c(20,35,40,55,63,21,32,44)
+	> gender<-c("M","F","M","M","F","F","M","M")
+	> salary<-c(24000,89000,80000,56000,30000,56700,87000,105000)
+	> dframe<-data.frame(age,gender,salary)
+	> print(dframe)
+	age gender salary
+	1  20      M  24000
+	2  35      F  89000
+	3  40      M  80000
+	4  55      M  56000
+	5  63      F  30000
+	6  21      F  56700
+	7  32      M  87000
+	8  44      M 105000
+
+  
+
+A) Print the mean of ages.
+	> mean(age)
+	[1] 38.75
+
+B) Print the mean of salaries.
+	> mean(salary)
+	[1] 65962.5
+
+C) Print the salaries of all females with ages greater than 32.
+	> subset(dframe,(gender=="F" & age>32))
+	age gender salary
+	2  35      F  89000
+	5  63      F  30000
+
+D) Print age, gender and salaries of all males with ages less than 55. The following should be the output:
+	> subset(dframe,(gender=="M" & age<55))
+	age gender salary
+	1  20      M  24000
+	3  40      M  80000
+	7  32      M  87000
+	8  44      M 105000
+
+E) Find the maximum and minimum of salaries by gender.
+max salary of males will be:
+	> subset(dframe,(gender=="M" & salary==max(salary)))
+	age gender salary
+	8  44      M 105000
+
+min salary of males will be:
+	> subset(dframe,(gender=="M" & salary==min(salary)))
+	age gender salary
+	1  20      M  24000
+
+For females:
+	> dframeFemale<-subset(dframe,gender=="F")
+	> print(dframeFemale)
+	age gender salary
+	2  35      F  89000
+	5  63      F  30000
+	6  21      F  56700
+
+max salary of Females will be:
+	> subset(dframeFemale,salary==max(salary))
+	age gender salary
+	2  35      F  89000
+
+min salary of Females will be:
+	> subset(dframeFemale,salary==min(salary))
+	age gender salary
+	5  63      F  30000
+ 
